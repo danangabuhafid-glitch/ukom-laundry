@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('trans_order_detail', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('id_order');
+            $table->foreign('id_order')->references('id')->on('trans_order');
+            $table->unsignedInteger('id_service');
+            $table->foreign('id_service')->references('id')->on('type_of_service');
+            $table->integer('qty');
+            $table->integer('subtotal');
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('trans_order_detail');
+    }
+};
