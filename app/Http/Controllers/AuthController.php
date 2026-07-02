@@ -17,10 +17,17 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'login' => ['required'],
             'password' => ['required'],
         ]);
+
+        $login_type = filter_var($request->input('login'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $login_type => $request->input('login'),
+            'password' => $request->input('password'),
+        ];
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
@@ -28,8 +35,8 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+            'login' => 'The provided credentials do not match our records.',
+        ])->onlyInput('login');
     }
 
     public function logout(Request $request)

@@ -13,7 +13,8 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('level')->latest()->paginate(10);
-        return view('master.users.index', compact('users'));
+        $levels = Level::all();
+        return view('master.users.index', compact('users', 'levels'));
     }
 
     public function create()

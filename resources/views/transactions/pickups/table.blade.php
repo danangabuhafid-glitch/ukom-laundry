@@ -30,6 +30,7 @@
                                     @if($order->order_status == 0)
                                     <form action="{{ route('pickups.store', $order->id) }}" method="POST" class="d-inline form-confirm-pickup">
                                         @csrf
+                                        <input type="hidden" name="notes" class="pickup-notes">
                                         <button type="submit" class="btn btn-sm btn-primary" data-code="{{ $order->order_code }}">Confirm Pickup</button>
                                     </form>
                                     @else

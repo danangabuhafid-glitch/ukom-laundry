@@ -1,0 +1,177 @@
+/* ============================================================
+   Custom Select Dropdown — Premium Pill-based Design
+   Matches the "Assign Housekeeper" dropdown style globally.
+   ============================================================ */
+
+/* --- Trigger Button --- */
+.cs-dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--bs-primary);
+    background: var(--bs-primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    line-height: 1.5;
+    min-height: 38px;
+}
+.cs-dropdown-trigger:hover {
+    opacity: 0.9;
+    box-shadow: 0 2px 8px rgba(93, 135, 255, 0.25);
+}
+.cs-dropdown-trigger .cs-trigger-icon {
+    font-size: 16px;
+    opacity: 0.85;
+}
+.cs-dropdown-trigger .cs-trigger-caret {
+    margin-left: 2px;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+}
+.cs-dropdown.show .cs-dropdown-trigger .cs-trigger-caret {
+    transform: rotate(180deg);
+}
+
+/* --- Dropdown Menu --- */
+.cs-dropdown-menu {
+    position: absolute;
+    z-index: 1055;
+    display: none;
+    min-width: 220px;
+    max-width: 320px;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--bs-body-bg, #fff);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    padding: 8px 0;
+    margin-top: 4px;
+    animation: csFadeIn 0.15s ease;
+}
+.cs-dropdown.show .cs-dropdown-menu {
+    display: block;
+}
+@keyframes csFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Dropdown Header --- */
+.cs-dropdown-header {
+    padding: 6px 14px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color, #7c8fac);
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    margin-bottom: 4px;
+    user-select: none;
+}
+
+/* --- Dropdown Item --- */
+.cs-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 13px;
+    color: var(--bs-body-color, #2a3547);
+}
+.cs-dropdown-item:hover {
+    background: var(--bs-primary-bg-subtle, rgba(93, 135, 255, 0.08));
+}
+.cs-dropdown-item.cs-active {
+    background: var(--bs-primary-bg-subtle, rgba(93, 135, 255, 0.1));
+    color: var(--bs-primary);
+    font-weight: 700;
+}
+.cs-dropdown-item .cs-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+.cs-dropdown-item .cs-item-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- Abbreviation Pill --- */
+.cs-abbr-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    color: #fff;
+}
+
+/* --- Check icon --- */
+.cs-check-icon {
+    font-size: 16px;
+    color: var(--bs-primary);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.cs-active .cs-check-icon {
+    opacity: 1;
+}
+
+/* --- Dark mode overrides --- */
+[data-bs-theme="dark"] .cs-dropdown-menu {
+    background: #202936;
+    border-color: #334155;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+[data-bs-theme="dark"] .cs-dropdown-item:hover {
+    background: rgba(93, 135, 255, 0.12);
+}
+[data-bs-theme="dark"] .cs-dropdown-item {
+    color: #c9d1d9;
+}
+[data-bs-theme="dark"] .cs-dropdown-item.cs-active {
+    color: #7da2ff;
+}
+[data-bs-theme="dark"] .cs-dropdown-header {
+    color: #8b95a5;
+    border-color: #334155;
+}
+
+/* --- Scrollbar styling --- */
+.cs-dropdown-menu::-webkit-scrollbar {
+    width: 5px;
+}
+.cs-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+.cs-dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+}
+[data-bs-theme="dark"] .cs-dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+}

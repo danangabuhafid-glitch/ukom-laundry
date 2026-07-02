@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" type="image/png" href="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" />
+  <link rel="shortcut icon" type="image/png" href="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" />
   <link rel="stylesheet" href="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/css/styles.css') }}" />
-  <title>@yield('title', 'Jeeves')</title>
+  <link rel="stylesheet" href="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/css/custom-select.css') }}?v={{ time() }}" />
+  <title>@yield('title', isset($webSetting) ? $webSetting->app_name : 'Jeeves Laundry')</title>
 </head>
 <body>
   <div class="preloader">
-    <img src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" alt="loader" class="lds-ripple img-fluid" style="width: 80px;" />
+    <img src="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" alt="loader" class="lds-ripple img-fluid" style="width: 80px; object-fit: contain;" />
   </div>
   <div id="main-wrapper">
     <!-- Sidebar Start -->
@@ -17,8 +18,8 @@
       <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
           <a href="{{ route('dashboard') }}" class="text-nowrap logo-img">
-            <img src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="dark-logo" alt="Logo-Dark" style="width: 150px;" />
-            <img src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="light-logo" alt="Logo-light" style="width: 150px;" />
+            <img src="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="dark-logo" alt="Logo-Dark" style="width: 150px; height: 50px; object-fit: contain;" />
+            <img src="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="light-logo" alt="Logo-light" style="width: 150px; height: 50px; object-fit: contain;" />
           </a>
           <a href="javascript:void(0)" class="sidebartoggler ms-auto text-decoration-none fs-5 d-block d-xl-none">
             <i class="ti ti-x"></i>
@@ -41,61 +42,52 @@
               </a>
             </li>
 
-            @if(auth()->user()->level->level_name == 'Administrator')
-            <li class="nav-small-cap">
-              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">MASTER DATA</span>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('master.customers.index') }}" aria-expanded="false">
-                <span><i class="ti ti-users"></i></span>
-                <span class="hide-menu">Customer</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('master.services.index') }}" aria-expanded="false">
-                <span><i class="ti ti-wash-machine"></i></span>
-                <span class="hide-menu">Service</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('master.users.index') }}" aria-expanded="false">
-                <span><i class="ti ti-user-circle"></i></span>
-                <span class="hide-menu">User</span>
-              </a>
-            </li>
-            @endif
+            <!-- Dynamic Menus -->
+            @if(isset($dynamicMenus))
+              @foreach($dynamicMenus as $parent)
+                @php
+                  // Check if user has permission for the parent or ANY of its children
+                  $hasAccessToParent = false;
+                  
+                  if ($parent->permission_name && auth()->user()->can($parent->permission_name)) {
+                      $hasAccessToParent = true;
+                  }
+                  
+                  // Or if no specific permission is required for the parent itself, check if they can see any children
+                  if (!$parent->permission_name) {
+                      foreach ($parent->children as $child) {
+                          if (!$child->permission_name || auth()->user()->can($child->permission_name)) {
+                              $hasAccessToParent = true;
+                              break;
+                          }
+                      }
+                  }
+                @endphp
 
-            @if(in_array(auth()->user()->level->level_name, ['Operator', 'Administrator']))
-            <li class="nav-small-cap">
-              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">OPERATIONS</span>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('transactions.index') }}" aria-expanded="false">
-                <span><i class="ti ti-shopping-cart"></i></span>
-                <span class="hide-menu">Transaction</span>
-              </a>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('pickups.index') }}" aria-expanded="false">
-                <span><i class="ti ti-package"></i></span>
-                <span class="hide-menu">Pickup</span>
-              </a>
-            </li>
-            @endif
-
-            @if(in_array(auth()->user()->level->level_name, ['Pimpinan', 'Administrator']))
-            <li class="nav-small-cap">
-              <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-              <span class="hide-menu">MANAGEMENT</span>
-            </li>
-            <li class="sidebar-item">
-              <a class="sidebar-link" href="{{ route('reports.index') }}" aria-expanded="false">
-                <span><i class="ti ti-file-text"></i></span>
-                <span class="hide-menu">Reports</span>
-              </a>
-            </li>
+                @if($hasAccessToParent)
+                  <li class="sidebar-item hover-menu">
+                    <a class="sidebar-link has-arrow" href="{{ $parent->route_name ? route($parent->route_name) : 'javascript:void(0)' }}" aria-expanded="false">
+                      <span><i class="ti {{ $parent->icon ?? 'ti-dots' }}"></i></span>
+                      <span class="hide-menu">{{ $parent->name }}</span>
+                    </a>
+                    
+                    @if($parent->children->isNotEmpty())
+                    <ul aria-expanded="false" class="collapse first-level">
+                      @foreach($parent->children as $child)
+                        @if(!$child->permission_name || auth()->user()->can($child->permission_name))
+                          <li class="sidebar-item">
+                            <a href="{{ $child->route_name ? route($child->route_name) : '#' }}" class="sidebar-link">
+                              <div class="round-16 d-flex align-items-center justify-content-center"><i class="ti {{ $child->icon ?? 'ti-circle' }}"></i></div>
+                              <span class="hide-menu">{{ $child->name }}</span>
+                            </a>
+                          </li>
+                        @endif
+                      @endforeach
+                    </ul>
+                    @endif
+                  </li>
+                @endif
+              @endforeach
             @endif
           </ul>
         </nav>
@@ -180,6 +172,17 @@
   </div>
 
   <style>
+    /* Hover Sidebar Styles */
+    @media (min-width: 992px) {
+      .left-sidebar .sidebar-nav ul .sidebar-item.hover-menu:hover > .collapse.first-level {
+        display: block !important;
+        height: auto !important;
+      }
+      .left-sidebar .sidebar-nav ul .sidebar-item.hover-menu:hover > a.has-arrow::after {
+        transform: rotate(-135deg);
+      }
+    }
+
     .premium-toast {
       background: linear-gradient(135deg, #166534 0%, #15803d 50%, #16a34a 100%);
       color: #fff;
@@ -311,6 +314,7 @@
     @endif
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   <script src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/libs/simplebar/dist/simplebar.min.js') }}"></script>
   <script src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/js/theme/app.init.js') }}"></script>
@@ -327,6 +331,279 @@
       toastList.forEach(toast => toast.show());
     });
   </script>
+  <!-- Custom Select Dropdown Transformer -->
+  <script>
+  (function () {
+      'use strict';
+      var SEMANTIC_COLORS = {
+          available:'#13deb9',clean:'#13deb9',clear:'#13deb9',active:'#13deb9',confirmed:'#13deb9',
+          completed:'#13deb9',validated:'#13deb9',ready:'#13deb9',paid:'#13deb9',claimed:'#13deb9',
+          connected:'#13deb9',approved:'#13deb9',low:'#13deb9',vacant_clean:'#13deb9',vacant_ready:'#13deb9',
+          pending:'#ffae1f',dirty:'#ffae1f',processing:'#ffae1f',medium:'#ffae1f',warning:'#ffae1f',
+          stored:'#ffae1f',waiting:'#ffae1f',review:'#ffae1f',vacant_dirty:'#ffae1f',occupied_dirty:'#ffae1f',stay_over:'#ffae1f',
+          cancelled:'#fa896b',maintenance:'#fa896b',blocked:'#fa896b',damaged:'#fa896b',missing:'#fa896b',
+          disposed:'#fa896b',high:'#fa896b',danger:'#fa896b',rejected:'#fa896b',closed:'#fa896b',
+          expired:'#fa896b',overdue:'#fa896b',stained:'#fa896b',out_of_order:'#fa896b',out_of_service:'#fa896b',double_lock:'#fa896b',
+          booked:'#5d87ff',occupied:'#5d87ff',cleaning:'#5d87ff',in_progress:'#5d87ff',info:'#5d87ff',
+          transfer:'#5d87ff',handed_over:'#5d87ff',checked_in:'#5d87ff',cleaning_in_progress:'#5d87ff',
+          complimentary:'#5d87ff',house_use:'#5d87ff',do_not_disturb:'#5d87ff',sleep_out:'#5d87ff',
+          check_in:'#5d87ff',check_out:'#5d87ff',
+          unassigned:'#7c8fac',none:'#7c8fac','default':'#7c8fac',checked_out:'#7c8fac',occupied_no_luggage:'#7c8fac'
+      };
+      var PALETTE = ['#5d87ff','#13deb9','#ffae1f','#fa896b','#8b5cf6','#539BFF','#49beff','#dfa974','#6610f2','#d63384'];
+
+      function generateAbbreviation(text) {
+          if (!text || !text.trim()) return '-';
+          var abbrMatch = text.match(/^([A-Z]{2,4})\s*[\-–—]\s*.+/);
+          if (abbrMatch) return abbrMatch[1].substring(0, 3);
+          var cleaned = text.replace(/\([^)]*\)/g, '').replace(/[0-9]/g, '').replace(/[\(\)\/—\-–,.:;!?]/g, ' ').trim();
+          var words = cleaned.split(/\s+/).filter(function(w){ return w.length > 0; });
+          if (words.length === 0) return '-';
+          if (words.length >= 2) {
+              return words.slice(0, 3).map(function(w){ return w[0].toUpperCase(); }).join('');
+          }
+          var word = words[0];
+          var vowels = 'aeiouAEIOU';
+          var result = word[0].toUpperCase();
+          var lastAdded = result.toLowerCase();
+          for (var i = 1; i < word.length && result.length < 3; i++) {
+              var ch = word[i];
+              if (vowels.indexOf(ch) === -1 && ch.toLowerCase() !== lastAdded) {
+                  result += ch.toUpperCase();
+                  lastAdded = ch.toLowerCase();
+              }
+          }
+          if (result.length < 2) result = word.substring(0, 3).toUpperCase();
+          return result;
+      }
+
+      function resolveColor(val, txt) {
+          var v = (val || '').toLowerCase().replace(/[\s\-]/g, '_');
+          var t = (txt || '').toLowerCase();
+          if (SEMANTIC_COLORS[v]) return SEMANTIC_COLORS[v];
+          var keys = Object.keys(SEMANTIC_COLORS);
+          for (var i = 0; i < keys.length; i++) { if (v.indexOf(keys[i]) !== -1) return SEMANTIC_COLORS[keys[i]]; }
+          for (var j = 0; j < keys.length; j++) { if (t.indexOf(keys[j]) !== -1) return SEMANTIC_COLORS[keys[j]]; }
+          var hash = 0;
+          for (var k = 0; k < t.length; k++) { hash = ((hash << 5) - hash) + t.charCodeAt(k); hash |= 0; }
+          return PALETTE[Math.abs(hash) % PALETTE.length];
+      }
+
+      function findLabel(sel) {
+          if (sel.id) { var l = document.querySelector('label[for="' + sel.id + '"]'); if (l) return l.textContent.replace(/\*/g, '').trim(); }
+          var p = sel.closest('.mb-3,.mb-2,.col-md-6,.col-md-4,.col-6,.form-group');
+          if (p) { var lb = p.querySelector('label'); if (lb) return lb.textContent.replace(/\*/g, '').trim(); }
+          var td = sel.closest('td');
+          if (td) {
+              var ci = Array.prototype.indexOf.call(td.parentElement.children, td);
+              var tbl = sel.closest('table');
+              if (tbl) { var hdr = tbl.querySelector('thead tr'); if (hdr && hdr.children[ci]) return hdr.children[ci].textContent.trim(); }
+          }
+          return '';
+      }
+
+      function transformSelect(sel) {
+          if (sel.getAttribute('data-cs-done')) return;
+          if (sel.closest('.flatpickr-calendar,.flatpickr-month')) return;
+          if (sel.hasAttribute('data-cs-skip')) return;
+          if (sel.multiple) return;
+          sel.setAttribute('data-cs-done', '1');
+
+          var opts = Array.prototype.slice.call(sel.options);
+          var label = findLabel(sel);
+          var hasOC = sel.hasAttribute('onchange');
+          var ocAttr = sel.getAttribute('onchange');
+
+          var wrap = document.createElement('div');
+          wrap.className = 'cs-dropdown position-relative d-inline-block';
+          wrap.style.width = '100%';
+
+          var selOpt = opts[sel.selectedIndex] || opts[0];
+          var selTxt = selOpt ? selOpt.textContent.trim() : 'Select';
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cs-dropdown-trigger';
+          btn.innerHTML = '<i class="ti ti-selector cs-trigger-icon"></i> <span class="cs-trigger-text">' + selTxt + '</span> <i class="ti ti-chevron-down cs-trigger-caret"></i>';
+
+          var menu = document.createElement('div');
+          menu.className = 'cs-dropdown-menu';
+          menu.style.display = 'none';
+
+          if (label) {
+              var hd = document.createElement('div');
+              hd.className = 'cs-dropdown-header';
+              hd.textContent = label.toUpperCase();
+              menu.appendChild(hd);
+          }
+
+          opts.forEach(function(opt, idx) {
+              var item = document.createElement('div');
+              item.className = 'cs-dropdown-item' + (idx === sel.selectedIndex ? ' cs-active' : '');
+              item.setAttribute('data-value', opt.value);
+              item.setAttribute('data-idx', idx);
+
+              var txt = opt.textContent.trim();
+              var abbr = generateAbbreviation(txt);
+              var color = resolveColor(opt.value, txt);
+
+              item.innerHTML = '<div class="cs-item-left"><span class="cs-abbr-pill" style="background:' + color + ';">' + abbr + '</span><span class="cs-item-label">' + txt + '</span></div><i class="ti ti-check cs-check-icon"></i>';
+
+              item.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  sel.selectedIndex = idx;
+                  sel.dispatchEvent(new Event('change', { bubbles: true }));
+                  if (hasOC && ocAttr) {
+                      try { (new Function(ocAttr)).call(sel); } catch(err) { console.warn('CS onchange err', err); }
+                  }
+                  btn.querySelector('.cs-trigger-text').textContent = txt;
+                  var items = menu.querySelectorAll('.cs-dropdown-item');
+                  for (var x = 0; x < items.length; x++) {
+                      if (parseInt(items[x].getAttribute('data-idx')) === idx) items[x].className = 'cs-dropdown-item cs-active';
+                      else items[x].className = 'cs-dropdown-item';
+                  }
+                  menu.style.display = 'none';
+              });
+              menu.appendChild(item);
+          });
+
+          btn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              var allMenus = document.querySelectorAll('.cs-dropdown-menu');
+              for (var a = 0; a < allMenus.length; a++) { if (allMenus[a] !== menu) allMenus[a].style.display = 'none'; }
+              menu.style.display = (menu.style.display === 'none') ? 'block' : 'none';
+          });
+
+          wrap.appendChild(btn);
+          wrap.appendChild(menu);
+          sel.style.display = 'none';
+          sel.parentNode.insertBefore(wrap, sel.nextSibling);
+      }
+
+      document.addEventListener('click', function() {
+          var menus = document.querySelectorAll('.cs-dropdown-menu');
+          for (var i = 0; i < menus.length; i++) menus[i].style.display = 'none';
+      });
+
+      function initAll(root) {
+          var sels = (root || document).querySelectorAll('select.form-select, select.form-control');
+          for (var i = 0; i < sels.length; i++) transformSelect(sels[i]);
+      }
+
+      if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { initAll(); });
+      } else {
+          initAll();
+      }
+
+      if (typeof MutationObserver !== 'undefined') {
+          var obs = new MutationObserver(function(muts) {
+              for (var m = 0; m < muts.length; m++) {
+                  for (var n = 0; n < muts[m].addedNodes.length; n++) {
+                      var node = muts[m].addedNodes[n];
+                      if (node.nodeType === 1) {
+                          if (node.tagName === 'SELECT' && (node.classList.contains('form-select') || node.classList.contains('form-control'))) {
+                              setTimeout(function(){ transformSelect(node); }, 50);
+                          }
+                          if (node.querySelectorAll) {
+                              var ss = node.querySelectorAll('select.form-select, select.form-control');
+                              if (ss.length) setTimeout(function(){ for(var i=0;i<ss.length;i++) transformSelect(ss[i]); }, 50);
+                          }
+                      }
+                  }
+              }
+          });
+          obs.observe(document.body || document.documentElement, { childList: true, subtree: true });
+      }
+
+      window.CustomSelectTransformer = { transform: transformSelect, initAll: initAll, generateAbbreviation: generateAbbreviation };
+  })();
+  </script>
+
+  <!-- Auto Nominal Formatter -->
+  <script>
+  (function() {
+      'use strict';
+
+      function toNominal(val) {
+          var num = parseFloat(val.replace(/\./g, '').replace(/,/g, '.'));
+          if (isNaN(num)) return val;
+          return num.toLocaleString('id-ID');
+      }
+
+      function toRaw(val) {
+          var raw = val.replace(/\./g, '').replace(/,/g, '.');
+          return raw;
+      }
+
+      function formatInput(el) {
+          var cursorPos = el.selectionStart;
+          var oldLen = el.value.length;
+          el.value = toNominal(el.value);
+          var newLen = el.value.length;
+          var diff = newLen - oldLen;
+          if (diff > 0 && cursorPos !== null) {
+              el.setSelectionRange(cursorPos + diff, cursorPos + diff);
+          }
+      }
+
+      function initNominalInputs(root) {
+          var inputs = (root || document).querySelectorAll('.nominal-input');
+          for (var i = 0; i < inputs.length; i++) {
+              (function(inp) {
+                  if (inp.getAttribute('data-nominal-done')) return;
+                  inp.setAttribute('data-nominal-done', '1');
+
+                  inp.addEventListener('input', function() { formatInput(inp); });
+                  inp.addEventListener('blur', function() { formatInput(inp); });
+
+                  if (inp.value) formatInput(inp);
+              })(inputs[i]);
+          }
+      }
+
+      document.addEventListener('submit', function(e) {
+          var form = e.target;
+          var noms = form.querySelectorAll('.nominal-input');
+          for (var i = 0; i < noms.length; i++) {
+              noms[i].value = toRaw(noms[i].value);
+          }
+      });
+
+      // Parse nominal to number helper (exposed globally)
+      window.parseNominal = function(val) {
+          if (typeof val !== 'string') return parseFloat(val) || 0;
+          return parseFloat(val.replace(/\./g, '').replace(/,/g, '.')) || 0;
+      };
+
+      if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { initNominalInputs(); });
+      } else {
+          initNominalInputs();
+      }
+
+      if (typeof MutationObserver !== 'undefined') {
+          var nomObs = new MutationObserver(function(muts) {
+              for (var m = 0; m < muts.length; m++) {
+                  for (var n = 0; n < muts[m].addedNodes.length; n++) {
+                      var node = muts[m].addedNodes[n];
+                      if (node.nodeType === 1) {
+                          if (node.classList && node.classList.contains('nominal-input')) {
+                              setTimeout(function(){ initNominalInputs(node.parentNode); }, 50);
+                          }
+                          if (node.querySelectorAll) {
+                              var found = node.querySelectorAll('.nominal-input');
+                              if (found.length) setTimeout(function(){ initNominalInputs(node); }, 50);
+                          }
+                      }
+                  }
+              }
+          });
+          nomObs.observe(document.body || document.documentElement, { childList: true, subtree: true });
+      }
+  })();
+  </script>
+
   @stack('scripts')
 </body>
 </html>

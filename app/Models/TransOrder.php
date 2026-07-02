@@ -10,7 +10,7 @@ class TransOrder extends Model
     use SoftDeletes;
 
     protected $table = 'trans_order';
-    protected $fillable = ['id_customer', 'order_code', 'order_date', 'order_end_date', 'order_status', 'order_pay', 'order_change', 'total'];
+    protected $fillable = ['id_customer', 'order_code', 'order_date', 'order_end_date', 'order_status', 'order_pay', 'order_change', 'total', 'tax_rate', 'tax_amount'];
 
     public function customer()
     {

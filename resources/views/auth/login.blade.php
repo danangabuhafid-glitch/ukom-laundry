@@ -2,12 +2,11 @@
 <html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Blue_Theme" data-layout="vertical">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" type="image/png" href="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ isset($webSetting) ? $webSetting->app_name : 'Jeeves Laundry' }} - Login</title>
+  <link rel="shortcut icon" type="image/png" href="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" />
   <link rel="stylesheet" href="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/css/styles.css') }}" />
-  <title>Jeeves - Login</title>
 </head>
 
 <body>
@@ -27,9 +26,9 @@
             <div class="authentication-login min-vh-100 bg-body row justify-content-center align-items-center p-4">
               <div class="auth-max-width col-sm-8 col-md-6 col-xl-7 px-4">
                 <div class="text-center mb-4">
-                  <img src="{{ asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="dark-logo" alt="Logo-Dark" style="width: 150px;" />
+                  <img src="{{ isset($webSetting) && $webSetting->logo_path ? Storage::url($webSetting->logo_path) : asset('modernize_v5/modernize-bootstrap/dist/assets/images/logos/jeeves-logo.png') }}" class="dark-logo" alt="Logo-Dark" style="width: 150px; max-height: 50px; object-fit: contain;" />
                 </div>
-                <h2 class="mb-1 fs-7 fw-bolder text-center">Welcome to Jeeves</h2>
+                <h2 class="mb-1 fs-7 fw-bolder text-center">Welcome to {{ isset($webSetting) ? $webSetting->app_name : 'Jeeves' }}</h2>
                 <p class="mb-7 text-center">Please login to continue</p>
                 
                 @if ($errors->any())
@@ -41,8 +40,8 @@
                 <form action="{{ route('login') }}" method="POST">
                   @csrf
                   <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                    <label for="login" class="form-label">Email / Username</label>
+                    <input type="text" class="form-control" id="login" name="login" value="{{ old('login') }}" required autofocus>
                   </div>
                   <div class="mb-4">
                     <label for="password" class="form-label">Password</label>

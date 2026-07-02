@@ -14,10 +14,11 @@
             padding: 20px;
         }
         .receipt-container {
-            max-width: 350px;
+            width: 58mm;
             margin: 0 auto;
             border: 1px dashed #ccc;
-            padding: 15px;
+            padding: 5mm;
+            box-sizing: border-box;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
@@ -73,6 +74,10 @@
                     @endif
                 </td>
             </tr>
+            <tr>
+                <td><strong>Pembayaran</strong></td>
+                <td class="text-right">{{ $order->payment_method }}</td>
+            </tr>
         </table>
 
         <hr>
@@ -99,6 +104,16 @@
         <hr>
 
         <table>
+            @if($order->tax_amount > 0)
+            <tr>
+                <td>Subtotal</td>
+                <td class="text-right">Rp {{ number_format($order->total - $order->tax_amount, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>Tax ({{ $order->tax_rate }}%)</td>
+                <td class="text-right">Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</td>
+            </tr>
+            @endif
             <tr>
                 <td class="fw-bold fs-5">TOTAL</td>
                 <td class="text-right fw-bold fs-5">Rp {{ number_format($order->total, 0, ',', '.') }}</td>

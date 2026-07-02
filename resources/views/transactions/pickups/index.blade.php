@@ -39,9 +39,11 @@
                     const orderCode = btn.getAttribute('data-code');
 
                     Swal.fire({
-                        title: 'Confirm Pickup?',
-                        text: "Mark order " + orderCode + " as picked up?",
+                        title: 'Confirm Pickup',
+                        text: "Mark order " + orderCode + " as picked up? You can add optional remarks/notes below.",
                         icon: 'question',
+                        input: 'textarea',
+                        inputPlaceholder: 'Type your remarks/notes here (optional)...',
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
@@ -49,6 +51,8 @@
                         cancelButtonText: 'Cancel'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            const notesInput = this.querySelector('.pickup-notes');
+                            if (notesInput) notesInput.value = result.value || '';
                             this.submit();
                         }
                     });

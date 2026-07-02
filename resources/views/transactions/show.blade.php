@@ -16,6 +16,8 @@
                     @else
                         <span class="badge bg-success rounded-3 fw-semibold">Sudah Diambil</span>
                     @endif
+                    <br>
+                    <strong>Metode Bayar:</strong> {{ $order->payment_method }}
                 </div>
 
                 <div class="mt-2 mb-5 pt-3 border-top">

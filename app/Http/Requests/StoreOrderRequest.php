@@ -14,12 +14,14 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'id_service' => ['required', 'exists:type_of_service,id'],
-            'qty' => ['required', 'numeric', 'min:0.1'],
+            'services' => ['required', 'array', 'min:1'],
+            'services.*.id_service' => ['required', 'exists:type_of_service,id'],
+            'services.*.qty' => ['required', 'numeric', 'min:0.1'],
             'new_customer_name' => ['nullable', 'string', 'max:50'],
             'new_customer_phone' => ['nullable', 'string', 'max:15'],
             'new_customer_address' => ['nullable', 'string'],
             'order_pay' => ['required', 'numeric', 'min:0'],
+            'payment_method' => ['required', 'string', 'max:50'],
         ];
 
         if ($this->input('id_customer') === 'new') {

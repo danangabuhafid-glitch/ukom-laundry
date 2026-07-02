@@ -42,14 +42,18 @@ class PickupController extends Controller
                 throw new Exception("Order is already picked up or cannot be picked up.");
             }
 
-            DB::transaction(function () use ($order) {
+            DB::transaction(function () use ($order, $request) {
                 $order->update(['order_status' => 1]); // 1 = Sudah Diambil
+
+                $notes = $request->input('notes');
+                $defaultNote = 'Confirmed by: ' . auth()->user()->name;
+                $finalNote = $notes ? $notes . ' (by: ' . auth()->user()->name . ')' : $defaultNote;
 
                 TransLaundryPickup::create([
                     'id_order' => $order->id,
                     'id_customer' => $order->id_customer,
                     'pickup_date' => now(),
-                    'notes' => 'Confirmed by: ' . auth()->user()->name,
+                    'notes' => $finalNote,
                 ]);
             });
 
