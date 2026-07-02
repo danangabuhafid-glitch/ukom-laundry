@@ -98,4 +98,3 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi di komputer lokal (Loca
 ## 📄 Lisensi
 
 Aplikasi ini bersifat *open-sourced* dan dilisensikan di bawah [MIT license](https://opensource.org/licenses/MIT).
-# ukom-laundry
